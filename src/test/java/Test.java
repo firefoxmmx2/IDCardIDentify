@@ -69,18 +69,6 @@ public class Test {
       };
     System.out.println("referenceColor["+ referenceColor[0]+","+referenceColor[1]+","+referenceColor[2]+"]");
     convertToBinary(contentImage,referenceColor);
-//    for (int x = contentImage.getMinX(); x < contentImage.getWidth(); x++) {
-//      for (int y = contentImage.getMinY(); y < contentImage.getHeight(); y++) {
-//        Object data = contentImage.getRaster().getDataElements(x, y, null);
-//        int blue=contentImage.getColorModel().getBlue(data);
-//        if(blue > gray[0])
-//          contentImage.getRaster().setPixel(x,y,white);
-////        if(blue <= gray[0] && y >= 384)
-////          bufferedImage.getRaster().setPixel(x,y,white);
-//        if(blue <= gray[0])
-//          contentImage.getRaster().setPixel(x,y,black);
-//      }
-//    }
     BufferedImage birthImage=ImageHelper.getSubImage(bufferedImage,bufferedImage.getMinX(),154,414,54);
     darkestPoint = darkestPoint(birthImage);
     referenceColor=new int[] {
@@ -90,18 +78,6 @@ public class Test {
     };
     System.out.println("referenceColor["+ referenceColor[0]+","+referenceColor[1]+","+referenceColor[2]+"]");
     convertToBinary(birthImage,referenceColor);
-//    for (int x = birthImage.getMinX(); x < birthImage.getWidth(); x++) {
-//      for (int y = birthImage.getMinY(); y < birthImage.getHeight(); y++) {
-//        Object data = birthImage.getRaster().getDataElements(x, y, null);
-//        int blue=birthImage.getColorModel().getBlue(data);
-//        if(blue > gray[0])
-//          birthImage.getRaster().setPixel(x,y,white);
-////        if(blue <= gray[0] && y >= 384)
-////          bufferedImage.getRaster().setPixel(x,y,white);
-//        if(blue <= gray[0])
-//          birthImage.getRaster().setPixel(x,y,black);
-//      }
-//    }
     BufferedImage addressImage = ImageHelper.getSubImage(bufferedImage,bufferedImage.getMinX(),208,414,144);
     darkestPoint=darkestPoint(addressImage);
     referenceColor=new int[] {
@@ -112,18 +88,6 @@ public class Test {
     System.out.println("referenceColor["+ referenceColor[0]+","+referenceColor[1]+","+referenceColor[2]+"]");
 
     convertToBinary(addressImage,referenceColor);
-//    for (int x = addressImage.getMinX(); x < addressImage.getWidth(); x++) {
-//      for (int y = addressImage.getMinY(); y < addressImage.getHeight(); y++) {
-//        Object data = addressImage.getRaster().getDataElements(x, y, null);
-//        int blue = addressImage.getColorModel().getBlue(data);
-//        if (blue > gray[0])
-//          addressImage.getRaster().setPixel(x, y, white);
-////        if(blue <= gray[0] && y >= 384)
-////          bufferedImage.getRaster().setPixel(x,y,white);
-//        if (blue <= gray[0])
-//          addressImage.getRaster().setPixel(x, y, black);
-//      }
-//    }
 
     BufferedImage idImage = ImageHelper.getSubImage(bufferedImage, bufferedImage.getMinX(), 354, bufferedImage.getWidth(), bufferedImage.getHeight() - 354);
     darkestPoint=darkestPoint(idImage);
@@ -135,14 +99,6 @@ public class Test {
     System.out.println("referenceColor["+ referenceColor[0]+","+referenceColor[1]+","+referenceColor[2]+"]");
 
     convertToBinary(idImage,referenceColor);
-//    for (int x = idImage.getMinX(); x < idImage.getWidth(); x++) {
-//      for (int y = idImage.getMinY(); y < idImage.getHeight(); y++) {
-//        Object data = idImage.getRaster().getDataElements(x, y, null);
-//        int blue=idImage.getColorModel().getBlue(data);
-//        if(blue > 40)
-//          idImage.getRaster().setPixel(x,y,white);
-//      }
-//    }
     ImageIO.write(contentImage, "jpg", new FileOutputStream(imageFile.getParent() + "/"  + "contentImage.jpg"));
     String result = tesseract.doOCR(contentImage);
     System.out.println(result);
@@ -155,10 +111,6 @@ public class Test {
     ImageIO.write(idImage,"jpg",new FileOutputStream(imageFile.getParent()+"/"+"idImage.jpg"));
     tesseract.setLanguage("eng");
     System.out.println(tesseract.doOCR(idImage));
-//    for (int f = 73; f >= 57; f--) {
-//    }
-//    bufferedImage=ImageHelper.convertImageToBinary(bufferedImage);
-//    ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(new FileOutputStream("/home/hooxin/1.jpg"));
   }
 
 
