@@ -12,7 +12,8 @@ import java.io.IOException;
 public class Test {
   private static int[] WHITE = new int[]{255, 255, 255};
   private static int[] BLACK = new int[]{0, 0, 0};
-  private static int[] GRAY = new int[]{60,60,60};
+  private static int[] GRAY = new int[]{55,55,55};
+  private static int[] ID_GRAY = new int[]{30,30,30};
   public static Object darkestPoint(BufferedImage image) {
     Object darkestPoint = image.getRaster().getDataElements(image.getMinX(),image.getMinY(),null);
     for (int x = image.getMinX(); x < image.getWidth(); x++) {
@@ -24,7 +25,10 @@ public class Test {
 
         if(dataBlue < image.getColorModel().getBlue(darkestPoint) &&
             dataRed < image.getColorModel().getRed(darkestPoint) &&
-            dataGreen < image.getColorModel().getGreen(darkestPoint))
+            dataGreen < image.getColorModel().getGreen(darkestPoint) &&
+            dataBlue != BLACK[2] &&
+            dataRed != BLACK[0] &&
+            dataGreen != BLACK[1])
           darkestPoint = data;
       }
     }
@@ -59,46 +63,25 @@ public class Test {
     //缩放到真实身份证大小
     bufferedImage = ImageHelper.getScaledInstance(bufferedImage, 673, 425);
     ImageIO.write(bufferedImage, "jpg", new FileOutputStream(imageFile.getParent() + "/1.jpg"));
-    int limit=15;
+    int limit=25;
     BufferedImage contentImage = ImageHelper.getSubImage(bufferedImage,bufferedImage.getMinX(),bufferedImage.getMinY(),414,154);
-    Object darkestPoint = darkestPoint(contentImage);
-    int[] referenceColor=new int[]{
-        contentImage.getColorModel().getRed(darkestPoint),
-        contentImage.getColorModel().getGreen(darkestPoint),
-        contentImage.getColorModel().getBlue(darkestPoint)
-      };
-    System.out.println("referenceColor["+ referenceColor[0]+","+referenceColor[1]+","+referenceColor[2]+"]");
-    convertToBinary(contentImage,referenceColor);
+    convertToBinary(contentImage,GRAY);
     BufferedImage birthImage=ImageHelper.getSubImage(bufferedImage,bufferedImage.getMinX(),154,414,54);
-    darkestPoint = darkestPoint(birthImage);
-    referenceColor=new int[] {
-        birthImage.getColorModel().getRed(darkestPoint),
-        birthImage.getColorModel().getGreen(darkestPoint),
-        birthImage.getColorModel().getBlue(darkestPoint)
-    };
-    System.out.println("referenceColor["+ referenceColor[0]+","+referenceColor[1]+","+referenceColor[2]+"]");
-    convertToBinary(birthImage,referenceColor);
+    convertToBinary(birthImage,GRAY);
     BufferedImage addressImage = ImageHelper.getSubImage(bufferedImage,bufferedImage.getMinX(),208,414,144);
-    darkestPoint=darkestPoint(addressImage);
-    referenceColor=new int[] {
-        addressImage.getColorModel().getRed(darkestPoint),
-        addressImage.getColorModel().getGreen(darkestPoint),
-        addressImage.getColorModel().getBlue(darkestPoint)
-    };
-    System.out.println("referenceColor["+ referenceColor[0]+","+referenceColor[1]+","+referenceColor[2]+"]");
 
-    convertToBinary(addressImage,referenceColor);
+    convertToBinary(addressImage,GRAY);
 
     BufferedImage idImage = ImageHelper.getSubImage(bufferedImage, bufferedImage.getMinX(), 354, bufferedImage.getWidth(), bufferedImage.getHeight() - 354);
-    darkestPoint=darkestPoint(idImage);
-    referenceColor=new int[] {
-        idImage.getColorModel().getRed(darkestPoint),
-        idImage.getColorModel().getGreen(darkestPoint),
-        idImage.getColorModel().getBlue(darkestPoint)
-    };
-    System.out.println("referenceColor["+ referenceColor[0]+","+referenceColor[1]+","+referenceColor[2]+"]");
+//    darkestPoint=darkestPoint(idImage);
+//    referenceColor=new int[] {
+//        idImage.getColorModel().getRed(darkestPoint),
+//        idImage.getColorModel().getGreen(darkestPoint),
+//        idImage.getColorModel().getBlue(darkestPoint)
+//    };
+//    System.out.println("referenceColor["+ referenceColor[0]+","+referenceColor[1]+","+referenceColor[2]+"]");
 
-    convertToBinary(idImage,referenceColor);
+    convertToBinary(idImage,ID_GRAY);
     ImageIO.write(contentImage, "jpg", new FileOutputStream(imageFile.getParent() + "/"  + "contentImage.jpg"));
     String result = tesseract.doOCR(contentImage);
     System.out.println(result);

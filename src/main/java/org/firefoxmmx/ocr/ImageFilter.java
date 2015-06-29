@@ -1,8 +1,10 @@
 package org.firefoxmmx.ocr;
 
+import com.sun.rowset.FilteredRowSetImpl;
 import net.sourceforge.tess4j.util.ImageHelper;
 import net.sourceforge.tess4j.util.ImageIOHelper;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 
 public class ImageFilter {
@@ -67,4 +69,16 @@ public class ImageFilter {
     return ImageHelper.getScaledInstance(image,width,height);
   }
 
+  public static BufferedImage imageContrast(BufferedImage image,float rate) {
+    for (int x = image.getMinX(); x < image.getWidth(); x++) {
+      for (int y = image.getMinY(); y < image.getHeight(); y++) {
+        Object data = image.getRaster().getDataElements(x, y, null);
+        int dataRed = image.getColorModel().getRed(data);
+        int dataBlue = image.getColorModel().getBlue(data);
+        int dataGreen = image.getColorModel().getGreen(data);
+
+        image.setRGB((dataRed << 24)*rate | dataGreen << 16 | dataBlue);
+      }
+    }
+  }
 }
