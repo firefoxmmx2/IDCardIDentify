@@ -1,19 +1,11 @@
 package org.firefoxmmx.ocr;
 
-import com.sun.rowset.FilteredRowSetImpl;
 import net.sourceforge.tess4j.util.ImageHelper;
-import net.sourceforge.tess4j.util.ImageIOHelper;
 
-import javax.crypto.AEADBadTagException;
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class ImageFilter {
-  private static int[] WHITE = new int[]{255, 255, 255};
-  private static int[] BLACK = new int[]{0, 0, 0};
-  private static int[] GRAY = new int[]{60, 60, 60};
-
   public static Object findDarkestPoint(BufferedImage image) {
     Object darkestPoint = image.getRaster().getDataElements(image.getMinX(), image.getMinY(), null);
     for (int x = image.getMinX(); x < image.getWidth(); x++) {
@@ -48,15 +40,16 @@ public class ImageFilter {
         int green = image.getColorModel().getGreen(data);
 
         if (red > rgb[0] && green > rgb[1] && blue > rgb[2])
-          image.getRaster().setPixel(x, y, WHITE);
+          image.setRGB(x, y, Color.white.getRGB());
         else
-          image.getRaster().setPixel(x, y, BLACK);
+          image.setRGB(x, y, Color.black.getRGB());
       }
     }
   }
 
   /**
    * 复制图片
+   *
    * @param image
    * @return
    */
@@ -66,11 +59,12 @@ public class ImageFilter {
 
   /**
    * 截取图片
-   * @param image 原图片
+   *
+   * @param image   原图片
    * @param offsetX 位置x
    * @param offsetY 位置y
-   * @param width 宽度
-   * @param height 高度
+   * @param width   宽度
+   * @param height  高度
    * @return 截取的图片
    */
   public static BufferedImage subImage(BufferedImage image, int offsetX, int offsetY, int width, int height) {
@@ -79,40 +73,49 @@ public class ImageFilter {
 
   /**
    * 图片统一灰度值转化
+   *
    * @param image
    * @return
    */
-  public static  BufferedImage convertImageToGrayScale(BufferedImage image){
+  public static BufferedImage convertImageToGrayScale(BufferedImage image) {
     return ImageHelper.convertImageToGrayscale(image);
   }
 
   /**
    * 图片缩放
-   * @param image 图片
-   * @param width 新的宽度
+   *
+   * @param image  图片
+   * @param width  新的宽度
    * @param height 新的高度
    * @return 缩放后的图片
    */
-  public static BufferedImage imageScale(BufferedImage image, int width,int height) {
+  public static BufferedImage imageScale(BufferedImage image, int width, int height) {
     return ImageHelper.getScaledInstance(image, width, height);
   }
 
   /**
    * 图片对比度设置
+   *
    * @param image 原始图片
-   * @param rate 对比率
+   * @param rate  对比率
    * @return 调整后的图片(引用原始图片)
    */
-  public static BufferedImage imageContrast(BufferedImage image,float rate) {
+  public static BufferedImage imageContrast(BufferedImage image, float rate) {
     for (int x = image.getMinX(); x < image.getWidth(); x++) {
       for (int y = image.getMinY(); y < image.getHeight(); y++) {
         Object data = image.getRaster().getDataElements(x, y, null);
         int dataRed = image.getColorModel().getRed(data);
         int dataBlue = image.getColorModel().getBlue(data);
         int dataGreen = image.getColorModel().getGreen(data);
-        int dataAlpha = image.getColorModel().getAlpha(data);
-        Color dataColor = new Color(dataRed*rate,dataGreen*rate,dataBlue*rate,dataAlpha);
-        image.setRGB(x,y,dataColor.getRGB());
+
+        float newRed = dataRed * rate > 255 ? 255 : dataRed * rate;
+        newRed = newRed < 0 ? 0 : newRed;
+        float newGreen = dataGreen * rate > 255 ? 255 : dataGreen * rate;
+        newGreen = newGreen < 0 ? 0 : newGreen;
+        float newBlue = dataBlue * rate > 255 ? 255 : dataBlue * rate;
+        newBlue = newBlue < 0 ? 0 : newBlue;
+        Color dataColor = new Color(newRed, newGreen, newBlue);
+        image.setRGB(x, y, dataColor.getRGB());
       }
     }
 
@@ -121,11 +124,12 @@ public class ImageFilter {
 
   /**
    * 图片亮度调整
+   *
    * @param image
    * @param brightness
    * @return
    */
-  public static BufferedImage imageBrightness(BufferedImage image,int brightness) {
+  public static BufferedImage imageBrightness(BufferedImage image, int brightness) {
     for (int x = image.getMinX(); x < image.getWidth(); x++) {
       for (int y = image.getMinY(); y < image.getHeight(); y++) {
         Object data = image.getRaster().getDataElements(x, y, null);
@@ -133,11 +137,14 @@ public class ImageFilter {
         int dataBlue = image.getColorModel().getBlue(data);
         int dataGreen = image.getColorModel().getGreen(data);
         int dataAlpha = image.getColorModel().getAlpha(data);
-        int newRed = dataRed + brightness > 255 ? 255:dataRed+brightness;
-        int newBlue = dataBlue + brightness > 255 ? 255: dataBlue+brightness;
-        int newGreen = dataGreen + brightness > 255 ? 255: dataGreen+brightness;
-        Color dataColor = new Color(newRed,newGreen,newBlue,dataAlpha);
-        image.setRGB(x,y,dataColor.getRGB());
+        int newRed = dataRed + brightness > 255 ? 255 : dataRed + brightness;
+        newRed = newRed < 0 ? 0 : newRed;
+        int newBlue = dataBlue + brightness > 255 ? 255 : dataBlue + brightness;
+        newBlue = newBlue < 0 ? 0 : newBlue;
+        int newGreen = dataGreen + brightness > 255 ? 255 : dataGreen + brightness;
+        newGreen = newGreen < 0 ? 0 : newGreen;
+        Color dataColor = new Color(newRed, newGreen, newBlue, dataAlpha);
+        image.setRGB(x, y, dataColor.getRGB());
       }
     }
 
@@ -146,14 +153,14 @@ public class ImageFilter {
 
   /**
    * 获取图片亮度
+   *
    * @param image
    * @return
    */
-  public static long imageBrightness(BufferedImage image){
-    long totalBrightness = 0;
+  public static int imageBrightness(BufferedImage image) {
     long totalRed = 0;
     long totalGreen = 0;
-    long totalBlue=0;
+    long totalBlue = 0;
     for (int x = image.getMinX(); x < image.getWidth(); x++) {
       for (int y = image.getMinY(); y < image.getHeight(); y++) {
         Object data = image.getRaster().getDataElements(x, y, null);
@@ -168,12 +175,43 @@ public class ImageFilter {
       }
     }
 
-    float avgRed = totalRed / (image.getHeight()*image.getWidth());
+    float avgRed = totalRed / (image.getHeight() * image.getWidth());
     float avgGreen = totalGreen / (image.getWidth() * image.getHeight());
-    float avgBlue  =totalBlue / (image.getWidth() * image.getHeight());
+    float avgBlue = totalBlue / (image.getWidth() * image.getHeight());
 
-    long avgBrightNess = totalBrightness / ( image.getWidth() * image.getHeight());
+    int avgBrightNess = (int) ((avgRed + avgGreen + avgBlue) / 3);
 
     return avgBrightNess;
+  }
+
+  /**
+   * 图片像素RGB差值滤镜
+   *
+   * @param image
+   * @param differenceValue 最大允许差值
+   * @return
+   */
+  public static BufferedImage imageRGBDifferenceFilter(BufferedImage image, int differenceValue) {
+    BufferedImage newImage = new BufferedImage(image.getWidth(),image.getHeight(),BufferedImage.TYPE_3BYTE_BGR);
+    newImage.getGraphics().setColor(Color.white);
+    newImage.getGraphics().fillRect(0,0,newImage.getWidth(),newImage.getHeight());
+    for (int x = image.getMinX(); x < image.getWidth(); x++) {
+      for (int y = image.getMinY(); y < image.getHeight(); y++) {
+        Object data = image.getRaster().getDataElements(x, y, null);
+        int dataRed = image.getColorModel().getRed(data);
+        int dataBlue = image.getColorModel().getBlue(data);
+        int dataGreen = image.getColorModel().getGreen(data);
+
+        if (differenceValue > Math.abs(dataRed - dataBlue) ||
+            differenceValue > Math.abs(dataRed - dataGreen) ||
+            differenceValue > Math.abs(dataBlue - dataGreen)) {
+//          把超过最大差值的像素涂白
+//          image.setRGB(x, y, Color.white.getRGB());
+            newImage.setRGB(x,y,new Color(dataRed,dataGreen,dataBlue).getRGB());
+        }
+      }
+    }
+
+    return newImage;
   }
 }
