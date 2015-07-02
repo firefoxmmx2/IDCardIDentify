@@ -4,6 +4,7 @@ import net.sourceforge.tess4j.util.ImageHelper;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.*;
 
 public class ImageFilter {
   public static Object findDarkestPoint(BufferedImage image) {
@@ -28,7 +29,7 @@ public class ImageFilter {
   /**
    * 根据参考颜色,将图像二值化为黑白两种颜色
    *
-   * @param image
+   * @param image 一张灰度图
    * @param rgb
    */
   public static void convertToBinary(BufferedImage image, int[] rgb) {
@@ -48,13 +49,47 @@ public class ImageFilter {
   }
 
   /**
+   * 尝试将图像二值化为黑白两种颜色
+   *
+   * @param image 一张灰度图
+   */
+  public static void convertToBinary(BufferedImage image) {
+    int[][] grayMatrix=new int[image.getWidth()][image.getHeight()];
+//      找到灰度差异扩大点
+    for (int x = 0; x < image.getWidth(); x++) {
+      for (int y = 0; y < image.getHeight(); y++) {
+        Object data = image.getRaster().getDataElements(x, y, null);
+        int red = image.getColorModel().getRed(data);
+        grayMatrix[x][y]=red;
+      }
+    }
+    for (int x = 0; x < grayMatrix.length; x++) {
+      int[] columns = grayMatrix[x];
+      for (int y = 0; y < columns.length; y++) {
+        int point = columns[y];
+
+      }
+    }
+    System.out.println(grayMatrix);
+  }
+  /**
    * 复制图片
    *
    * @param image
    * @return
    */
   public static BufferedImage cloneImage(BufferedImage image) {
-    return ImageHelper.cloneImage(image);
+    BufferedImage newImage = new BufferedImage(image.getWidth(),image.getHeight(),BufferedImage.TYPE_3BYTE_BGR);
+    for (int x = image.getMinX(); x < image.getWidth(); x++) {
+      for (int y = image.getMinY(); y < image.getHeight(); y++) {
+        Object data=image.getRaster().getDataElements(x,y,null);
+        Color color=new Color(image.getColorModel().getRed(data),
+            image.getColorModel().getGreen(data),
+            image.getColorModel().getBlue(data));
+        newImage.setRGB(x,y,color.getRGB());
+      }
+    }
+    return newImage;
   }
 
   /**
@@ -192,9 +227,9 @@ public class ImageFilter {
    * @return
    */
   public static BufferedImage imageRGBDifferenceFilter(BufferedImage image, int differenceValue) {
-    BufferedImage newImage = new BufferedImage(image.getWidth(),image.getHeight(),BufferedImage.TYPE_3BYTE_BGR);
+    BufferedImage newImage=new BufferedImage(image.getWidth(), image.getHeight(),BufferedImage.TYPE_3BYTE_BGR);
     newImage.getGraphics().setColor(Color.white);
-    newImage.getGraphics().fillRect(0,0,newImage.getWidth(),newImage.getHeight());
+    newImage.getGraphics().fillRect(0, 0, image.getWidth(), image.getHeight());
     for (int x = image.getMinX(); x < image.getWidth(); x++) {
       for (int y = image.getMinY(); y < image.getHeight(); y++) {
         Object data = image.getRaster().getDataElements(x, y, null);
@@ -202,12 +237,12 @@ public class ImageFilter {
         int dataBlue = image.getColorModel().getBlue(data);
         int dataGreen = image.getColorModel().getGreen(data);
 
-        if (differenceValue > Math.abs(dataRed - dataBlue) ||
-            differenceValue > Math.abs(dataRed - dataGreen) ||
-            differenceValue > Math.abs(dataBlue - dataGreen)) {
+        if (differenceValue >= Math.abs(dataRed - dataBlue) ||
+            differenceValue >= Math.abs(dataRed - dataGreen) ||
+            differenceValue >= Math.abs(dataBlue - dataGreen)) {
 //          把超过最大差值的像素涂白
-//          image.setRGB(x, y, Color.white.getRGB());
-            newImage.setRGB(x,y,new Color(dataRed,dataGreen,dataBlue).getRGB());
+//          image.setRGB(x,y,Color.white.getRGB());
+          newImage.setRGB(x,y,new Color(dataRed,dataGreen,dataBlue).getRGB());
         }
       }
     }
