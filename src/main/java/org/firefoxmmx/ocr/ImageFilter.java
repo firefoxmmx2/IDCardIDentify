@@ -4,7 +4,6 @@ import net.sourceforge.tess4j.util.ImageHelper;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.*;
 
 public class ImageFilter {
   public static Object findDarkestPoint(BufferedImage image) {
@@ -64,10 +63,7 @@ public class ImageFilter {
       }
     }
     for (int x = 0; x < grayMatrix.length; x++) {
-      int[] columns = grayMatrix[x];
-      for (int y = 0; y < columns.length; y++) {
-        int point = columns[y];
-
+      for (int y = 0; y < grayMatrix[x].length; y++) {
       }
     }
     System.out.println(grayMatrix);
@@ -227,9 +223,6 @@ public class ImageFilter {
    * @return
    */
   public static BufferedImage imageRGBDifferenceFilter(BufferedImage image, int differenceValue) {
-    BufferedImage newImage=new BufferedImage(image.getWidth(), image.getHeight(),BufferedImage.TYPE_3BYTE_BGR);
-    newImage.getGraphics().setColor(Color.white);
-    newImage.getGraphics().fillRect(0, 0, image.getWidth(), image.getHeight());
     for (int x = image.getMinX(); x < image.getWidth(); x++) {
       for (int y = image.getMinY(); y < image.getHeight(); y++) {
         Object data = image.getRaster().getDataElements(x, y, null);
@@ -237,16 +230,72 @@ public class ImageFilter {
         int dataBlue = image.getColorModel().getBlue(data);
         int dataGreen = image.getColorModel().getGreen(data);
 
-        if (differenceValue >= Math.abs(dataRed - dataBlue) ||
-            differenceValue >= Math.abs(dataRed - dataGreen) ||
-            differenceValue >= Math.abs(dataBlue - dataGreen)) {
+        if (differenceValue <= Math.abs(dataRed - dataBlue) &&
+            differenceValue <= Math.abs(dataRed - dataGreen) &&
+            differenceValue <= Math.abs(dataBlue - dataGreen)) {
 //          把超过最大差值的像素涂白
-//          image.setRGB(x,y,Color.white.getRGB());
-          newImage.setRGB(x,y,new Color(dataRed,dataGreen,dataBlue).getRGB());
+          image.setRGB(x,y,Color.white.getRGB());
         }
       }
     }
 
-    return newImage;
+    return image;
+  }
+
+  public static void removeBrinaryImageNoisePoint(BufferedImage image){
+    int[][] grayMatrix=new int[image.getWidth()][image.getHeight()];
+//      找到灰度差异扩大点
+    for (int x = 0; x < image.getWidth(); x++) {
+      for (int y = 0; y < image.getHeight(); y++) {
+        Object data = image.getRaster().getDataElements(x, y, null);
+        int red = image.getColorModel().getRed(data);
+        grayMatrix[x][y]=red;
+      }
+    }
+    for (int x = 0; x < grayMatrix.length; x++) {
+      for (int y = 0; y < grayMatrix[x].length; y++) {
+        if(grayMatrix[x][y] < 255){
+          //判断四周有没有存在像素
+          boolean isNoisepoint = true;
+          if(x-1>=0){
+            isNoisepoint = isNoisepoint && grayMatrix[x-1][y] != 0;
+          }
+          if(y-1>=0) {
+            isNoisepoint = isNoisepoint && grayMatrix[x][y-1] != 0 ;
+          }
+          if(x+1<grayMatrix.length){
+            isNoisepoint = isNoisepoint && grayMatrix[x+1][y] != 0;
+          }
+          if(y+1<grayMatrix[x].length){
+            isNoisepoint = isNoisepoint && grayMatrix[x][y+1] != 0;
+          }
+
+          if(isNoisepoint)
+            image.setRGB(x,y,Color.white.getRGB());
+        }
+      }
+    }
+  }
+
+  /**
+   * 涂白大于rgb参数像素
+   * @param image 图片
+   * @param rgb 参考RGB
+   */
+  public static void convertToWhite(BufferedImage image) {
+    int interferenceLine = 100;
+    int grayInterferenceGt = 73;
+    int grayInterferenceLt = 78;
+    for (int x = 0; x < image.getWidth(); x++) {
+      for (int y = 0; y < image.getHeight(); y++) {
+        Object data  = image.getRaster().getDataElements(x,y,null);
+        int red = image.getColorModel().getRed(data);
+        int green=image.getColorModel().getGreen(data);
+        int blue= image.getColorModel().getBlue(data);
+        if((red > interferenceLine && green > interferenceLine && blue > interferenceLine)
+            || (red > grayInterferenceGt && red < grayInterferenceLt))
+          image.setRGB(x,y,Color.white.getRGB());
+      }
+    }
   }
 }
