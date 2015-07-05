@@ -18,11 +18,11 @@ public class Test {
   private static int targetContentBrightness = 300;
   private static int targetBirthBrightness = 300;
   private static int targetIdBrightness = 300;
-  private static int targetAddressBrightness = 300;
+  private static int targetAddressBrightness = 280;
   private static int targetDifferenceValue=15;
 
   public static void main(String[] args) throws TesseractException, IOException {
-    File imageFile = new File("/home/hooxin/Downloads/IDCARD1/0.tif");
+    File imageFile = new File("/home/hooxin/Downloads/IDCARD2/0.tif");
 
 
     Tesseract tesseract = new Tesseract();
@@ -35,7 +35,7 @@ public class Test {
     bufferedImage = ImageFilter.imageScale(bufferedImage, 673, 425);
 //    ImageFilter.convertToWhite(bufferedImage);
     ImageIO.write(bufferedImage, "jpg", new FileOutputStream(imageFile.getParent() + "/1.jpg"));
-    BufferedImage contentImage = ImageFilter.subImage(bufferedImage, bufferedImage.getMinX(), bufferedImage.getMinY(), 414, 154);
+    BufferedImage contentImage = ImageFilter.subImage(bufferedImage, bufferedImage.getMinX(), bufferedImage.getMinY(), 413, 154);
     int contentBrightness = ImageFilter.imageBrightness(contentImage);
     System.out.println("contentImage Brightness = " + ImageFilter.imageBrightness(contentImage));
     int fixedBrightness = targetContentBrightness - contentBrightness;
@@ -46,7 +46,7 @@ public class Test {
 //    contentImage = ImageHelper.convertImageToBinary(contentImage);
 //    ImageFilter.convertToBinary(contentImage,GRAY);
 //    ImageFilter.removeBrinaryImageNoisePoint(contentImage);
-    BufferedImage birthImage = ImageFilter.subImage(bufferedImage, bufferedImage.getMinX(), 154, 414, 54);
+    BufferedImage birthImage = ImageFilter.subImage(bufferedImage, bufferedImage.getMinX(), 154, 413, 54);
     int birthBrightness = ImageFilter.imageBrightness(birthImage);
     System.out.println("birthImage Brightness = " + birthBrightness);
     fixedBrightness = targetBirthBrightness - birthBrightness;
@@ -57,7 +57,8 @@ public class Test {
 //    ImageFilter.convertToBinary(birthImage, BIRTH_GRAY);
 //    ImageFilter.convertToBinary(birthImage, GRAY);
 //    ImageFilter.removeBrinaryImageNoisePoint(birthImage);
-    BufferedImage addressImage = ImageFilter.subImage(bufferedImage, bufferedImage.getMinX(), 208, 414, 144);
+    BufferedImage addressImage = ImageFilter.subImage(bufferedImage, bufferedImage.getMinX(), 208, 413, 144);
+    addressImage = ImageFilter.imageScale(addressImage, ((int) (addressImage.getWidth() * 2.4)+1), ((int) (addressImage.getHeight() * 2.4)+1));
     int addressBrightness = ImageFilter.imageBrightness(addressImage);
     System.out.println("addressImage Brightness = " + addressBrightness);
     fixedBrightness = targetAddressBrightness - addressBrightness;
@@ -93,7 +94,7 @@ public class Test {
     System.out.println(tesseract.doOCR(birthImage));
     ImageIO.write(addressImage, "jpg", new FileOutputStream(imageFile.getParent() + "/" + "addressImage.jpg"));
     tesseract.setLanguage("chi_sim");
-    System.out.println(tesseract.doOCR(addressImage).replaceAll("\\s+",""));
+    System.out.println(tesseract.doOCR(addressImage).replaceAll("[^\\s\\u4e00-\\u9fa5\\-0-9]+", "").replaceAll("\\n", ""));
     ImageIO.write(idImage, "jpg", new FileOutputStream(imageFile.getParent() + "/" + "idImage.jpg"));
     tesseract.setLanguage("eng");
     System.out.println(tesseract.doOCR(idImage).replaceAll("[^0-9xX]",""));
